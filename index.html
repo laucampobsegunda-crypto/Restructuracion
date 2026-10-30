@@ -102,6 +102,16 @@ textarea{min-height:70px;resize:vertical}
 .foot{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
 .foot .msg{margin-right:auto}
 .state{padding:28px;text-align:center;color:var(--muted)}
+.ovg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.ov{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:16px 16px;cursor:pointer;font:inherit;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .15s,transform .15s,border-color .15s}
+.ov:hover{box-shadow:0 6px 16px rgba(30,45,62,.12);transform:translateY(-2px);border-left-color:var(--navy)}
+.ov:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ovn{flex:none;width:38px;height:38px;border-radius:10px;background:var(--navy);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:16px}
+.ovt{flex:1;font-weight:600;font-size:14.5px;line-height:1.3}
+.ovt small,.mt small,.dh h2 small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);margin-top:2px}
+.mi[aria-current="true"] .mt small{color:rgba(255,255,255,.7)}
+.dh h2 small{font-size:13px}
+.ova{flex:none;color:var(--muted);font-size:22px;line-height:1}
 .modw{margin:0 -20px -18px;border-top:1px solid var(--border);background:#f0f2f6;border-radius:0 0 14px 14px;overflow:hidden}
 .modf{display:block;width:100%;border:0;height:600px;background:#f0f2f6}
 .vt{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:-4px 0 14px;overflow-x:auto}
@@ -156,7 +166,8 @@ var money=function(v,m){return v==null?'—':(m==='USD'?'USD ':'$ ')+Number(v).t
 function base(t){var o=Object.assign({},t);delete o.id;return o}
 var $=function(id){return document.getElementById(id)};
 
-var NOMBRES={t02:'OMF Diurno Operación PIU',t03:'OMF Nocturno',t08:'Transporte PAE',t04:'Cuadrilla de Reparación de Válvulas + Cuadrilla de Tareas Generales Oleoducto'};
+var NOMBRES={t02:'OMF Diurno Operación PIU',t03:'OMF Nocturno',t08:'Transporte PAE',t04:'Cuadrilla de Reparación de Válvulas + Cuadrilla de Tareas Generales Oleoducto',t09:'RTO'};
+var SUBT={t09:'Revisión Técnica Obligatoria'};
 var NOPC={t09:1};
 var PCMOD={t01:'ptcpc',t02:'pcpiu',t03:'pcomf',t04:'pcval',t05:'pccm',t08:'pctr'};
 var MODMAP={t01:'ptc',t03:'omf',t08:'tr',t05:'cm',t07:'sup',t10:'mant'};
@@ -174,7 +185,7 @@ function kpis(){
 }
 function menu(){
   $('menu').innerHTML=T.map(function(t){
-    var inner='<span class="mn">'+t.orden+'</span><span class="mt">'+esc(t.nombre)+'</span>';
+    var inner='<span class="mn">'+t.orden+'</span><span class="mt">'+esc(t.nombre)+(SUBT[t.id]?'<small>'+esc(SUBT[t.id])+'</small>':'')+'</span>';
     var dl=direct(t);
     if(dl) return '<div class="mrow"><a class="mi" href="'+esc(dl.u)+'" target="_blank" rel="noopener" aria-current="'+(sel===t.id)+'">'+inner.replace('</span></span>','</span><span style="font-weight:600">Abre ↗</span></span>')+'</a><button class="info" type="button" data-id="'+t.id+'" aria-label="Ver detalles de '+esc(t.nombre)+'">Detalles</button></div>';
     return '<button class="mi" type="button" data-id="'+t.id+'" aria-current="'+(sel===t.id)+'">'+inner+'</button>'}).join('');
@@ -188,18 +199,14 @@ function figs(t){
    (t.avance?'<div><b style="font-size:14px;padding-top:3px">'+esc(t.avance)+'</b><span>Avance</span></div>':'')+'</div>';
 }
 function overview(){
-  $('detail').innerHTML='<div class="dh"><div><h2>Todos los temas</h2><div class="chips"><span class="badge e-pendiente">Tocá un tema para ver todo lo creado</span></div></div></div>'+
-   '<div class="grid">'+T.map(function(t){
-     var dl=direct(t);
-     if(dl) return '<div class="tcw"><a class="tc" href="'+esc(dl.u)+'" target="_blank" rel="noopener"><b>'+t.orden+'. '+esc(t.nombre)+' ↗</b><span class="row"><span class="badge e-'+t.estado+'">'+lab(ESTADOS,t.estado)+'</span><span class="badge t-'+t.tipo+'">'+lab(TIPOS,t.tipo)+'</span></span><span class="fig">'+(num(t.hoy)!=null?'Dotación '+t.hoy+(num(t.propA)!=null?' → '+t.propA:'')+(num(t.propB)!=null?' / '+t.propB:''):'Sin dotación cargada')+'</span><span class="fig" style="color:var(--info);font-weight:600">Abre '+esc(dl.t.toLowerCase())+'</span></a><button class="info" type="button" data-id="'+t.id+'">Detalles</button></div>';
-     return '<button class="tc" type="button" data-id="'+t.id+'"><b>'+t.orden+'. '+esc(t.nombre)+'</b><span class="row"><span class="badge e-'+t.estado+'">'+lab(ESTADOS,t.estado)+'</span><span class="badge t-'+t.tipo+'">'+lab(TIPOS,t.tipo)+'</span></span>'+
-      '<span class="fig">'+(num(t.hoy)!=null?'Dotación '+t.hoy+(num(t.propA)!=null?' → '+t.propA:'')+(num(t.propB)!=null?' / '+t.propB:''):'Sin dotación cargada')+' · '+((t.links||[]).length)+' accesos</span><span class="fig">Propuesta comercial: '+lab(PCE,(t.pc&&t.pc.estado)||'sin')+'</span>'+
-      (t.responsable?'<span class="fig">Responsable: '+esc(t.responsable)+'</span>':'')+'</button>'}).join('')+'</div>';
+  $('detail').innerHTML='<div class="dh"><div><h2>Todos los temas</h2></div></div>'+
+   '<div class="ovg">'+T.map(function(t){
+     return '<button class="ov" type="button" data-id="'+t.id+'"><span class="ovn">'+t.orden+'</span><span class="ovt">'+esc(t.nombre)+(SUBT[t.id]?'<small>'+esc(SUBT[t.id])+'</small>':'')+'</span><span class="ova">›</span></button>'}).join('')+'</div>';
 }
 function view(t){
   if(NOPC[t.id]&&vtab==='pc')vtab='con';
   var L=t.links||[];
-  $('detail').innerHTML='<div class="dh"><div><h2>'+t.orden+'. '+esc(t.nombre)+'</h2></div>'+
+  $('detail').innerHTML='<div class="dh"><div><h2>'+t.orden+'. '+esc(t.nombre)+(SUBT[t.id]?'<small>'+esc(SUBT[t.id])+'</small>':'')+'</h2></div>'+
    (canWrite&&db&&!(vtab==='pc'&&PCMOD[t.id])?'<div class="act"><button class="btn" type="button" id="b-edit">'+(vtab==='pc'?'Editar propuesta':'Editar')+'</button></div>':'')+'</div>'+
    (NOPC[t.id]?'':'<div class="vt" role="tablist"><button type="button" role="tab" data-vt="con" aria-selected="'+(vtab==='con')+'">Contenido</button><button type="button" role="tab" data-vt="pc" aria-selected="'+(vtab==='pc')+'">Propuesta comercial</button></div>')+
    (vtab==='pc'?(PCMOD[t.id]&&window.__MODS&&window.__MODS[PCMOD[t.id]]?'<div class="modw"><iframe class="modf" id="modf" title="Propuesta comercial"></iframe></div>':pcView(t)):mod(t)?'<div class="modw"><iframe class="modf" id="modf" title="'+esc(t.nombre)+'"></iframe></div>':(t.slides&&t.slides.length?'<div class="sv" id="sv"><div class="svf" id="svf" aria-label="Presentación: tocá a la derecha para avanzar y a la izquierda para volver"><img id="sv-a" alt="Lámina de la presentación"><img id="sv-b" alt=""><div class="svbar"><i id="sv-pr"></i></div></div><div class="svc"><button class="btn sm" type="button" id="sv-p" aria-label="Lámina anterior">‹ Anterior</button><span id="sv-n"></span><button class="btn sm" type="button" id="sv-x" aria-label="Lámina siguiente">Siguiente ›</button><button class="btn sm" type="button" id="sv-f">Pantalla completa (F)</button></div><p class="svh">Cualquier tecla o un toque a la derecha avanza · ← o un toque a la izquierda vuelve · en el celular, deslizá</p></div>':'')+
@@ -328,7 +335,7 @@ document.addEventListener('keydown',function(e){
 });
 function go(id){editing=false;sel=id;render();if(window.innerWidth<820)$('detail').scrollIntoView({block:'start'});try{localStorage.setItem('pr-sel',id||'')}catch(e){}}
 $('menu').onclick=function(e){var b=e.target.closest('[data-id]');if(b)go(b.getAttribute('data-id'))};
-$('detail').addEventListener('click',function(e){var b=e.target.closest('.tc[data-id],.info[data-id]');if(b)go(b.getAttribute('data-id'))});
+$('detail').addEventListener('click',function(e){var b=e.target.closest('.tc[data-id],.info[data-id],.ov[data-id]');if(b)go(b.getAttribute('data-id'))});
 $('m-all').onclick=function(){go(null)};
 try{sel=localStorage.getItem('pr-sel')||null;vtab=localStorage.getItem('pr-vt')==='pc'?'pc':'con'}catch(e){}
 var CFG=window.APP_CONFIG||{};
