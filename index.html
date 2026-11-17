@@ -103,6 +103,7 @@ textarea{min-height:70px;resize:vertical}
 .foot .msg{margin-right:auto}
 .state{padding:28px;text-align:center;color:var(--muted)}
 .ovg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+@media(min-width:901px){.layout:has(.detail.ovmode){align-items:stretch}.detail.ovmode{display:flex;flex-direction:column}.detail.ovmode .ovg{flex:1;grid-auto-rows:1fr}}
 .ov{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:16px 16px;cursor:pointer;font:inherit;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .15s,transform .15s,border-color .15s}
 .ov:hover{box-shadow:0 6px 16px rgba(30,45,62,.12);transform:translateY(-2px);border-left-color:var(--navy)}
 .ov:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -199,11 +200,12 @@ function figs(t){
    (t.avance?'<div><b style="font-size:14px;padding-top:3px">'+esc(t.avance)+'</b><span>Avance</span></div>':'')+'</div>';
 }
 function overview(){
-  $('detail').innerHTML='<div class="dh"><div><h2>Todos los temas</h2></div></div>'+
+  $('detail').classList.add('ovmode');$('detail').innerHTML='<div class="dh"><div><h2>Todos los temas</h2></div></div>'+
    '<div class="ovg">'+T.map(function(t){
      return '<button class="ov" type="button" data-id="'+t.id+'"><span class="ovn">'+t.orden+'</span><span class="ovt">'+esc(t.nombre)+(SUBT[t.id]?'<small>'+esc(SUBT[t.id])+'</small>':'')+'</span><span class="ova">›</span></button>'}).join('')+'</div>';
 }
 function view(t){
+  $('detail').classList.remove('ovmode');
   if(NOPC[t.id]&&vtab==='pc')vtab='con';
   var L=t.links||[];
   $('detail').innerHTML='<div class="dh"><div><h2>'+t.orden+'. '+esc(t.nombre)+(SUBT[t.id]?'<small>'+esc(SUBT[t.id])+'</small>':'')+'</h2></div>'+
